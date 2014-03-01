@@ -1,0 +1,38 @@
+
+body {
+    background: #e0f0ff;
+}
+
+.stage {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+
+    width: 600px;
+    height: 500px;
+
+    border: 1px solid #000;
+    background: #204;
+
+    -webkit-transform: translate3d(0, 0, 0);
+    -webkit-perspective: 600;
+
+    overflow: hidden;
+}
+
+.wall {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 10px;
+    height: 10px;
+    background: #f00;
+
+    -webkit-transform: translate3d(10px, 10px, 0px);
+    transition: -webkit-transform 0.5s;
+
+    &:hover {
+        -webkit-transform: translate3d(10px, 10px, 10px);
+    }
+}
