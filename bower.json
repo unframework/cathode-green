@@ -1,0 +1,16 @@
+{
+  "name": "cathode-green",
+  "version": "0.0.0",
+  "authors": [
+    "nick.matantsev@gmail.com"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
