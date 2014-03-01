@@ -25,14 +25,24 @@ body {
     top: 0;
     left: 0;
 
-    width: 10px;
-    height: 10px;
-    background: #f00;
+    width: 100px;
+    height: 100px;
 
     -webkit-transform: translate3d(10px, 10px, 0px);
     transition: -webkit-transform 0.5s;
 
     &:hover {
         -webkit-transform: translate3d(10px, 10px, 10px);
+    }
+
+    &:after {
+        display: inline-block;
+        font-family: 'Press Start 2P', mono;
+        font-size: 16px;
+        line-height: 1;
+        color: #fee;
+        content: '+----+\A|    |\A|    |\A|    |\A|    |\A+----+';
+        white-space: pre;
+        background: #f00;
     }
 }
