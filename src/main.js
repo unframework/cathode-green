@@ -32,7 +32,7 @@ require([ 'stats' ], function (Stats) {
 
     var world;
 
-    function createBike(x, y) {
+    function createBike(world, x, y) {
         var fixDef = new b2FixtureDef();
         fixDef.density = 1.0;
         fixDef.friction = 0.5;
@@ -64,62 +64,43 @@ require([ 'stats' ], function (Stats) {
         world.CreateJoint(rjd);
     }
 
+    function createTerrain(world) {
+        var fixDef = new b2FixtureDef;
+        fixDef.density = 1.0;
+        fixDef.friction = 0.5;
+        fixDef.restitution = 0.2;
+
+        var bodyDef = new b2BodyDef;
+
+        //create ground
+        bodyDef.type = b2Body.b2_staticBody;
+
+        // positions the center of the object (not upper left!)
+        bodyDef.position.x = 6;
+        bodyDef.position.y = 10;
+
+        fixDef.shape = new b2PolygonShape;
+
+        // half width, half height. eg actual height here is 1 unit
+        fixDef.shape.SetAsBox(6, 0.1);
+        world.CreateBody(bodyDef).CreateFixture(fixDef);
+    }
+
     function init() {
-       world = new b2World(new b2Vec2(0, 10), true);
+        world = new b2World(new b2Vec2(0, 10), true);
 
-       createBike(2, 5);
+        var debugDraw = new b2DebugDraw();
+        debugDraw.SetSprite(ctx);
+        debugDraw.SetDrawScale(50);
+        debugDraw.SetFillAlpha(0.3);
+        debugDraw.SetLineThickness(1.0);
+        debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+        world.SetDebugDraw(debugDraw);
 
-       var SCALE = 30;
+        createTerrain(world);
+        createBike(world, 2, 5);
 
-       var fixDef = new b2FixtureDef;
-       fixDef.density = 1.0;
-       fixDef.friction = 0.5;
-       fixDef.restitution = 0.2;
-
-       var bodyDef = new b2BodyDef;
-
-       //create ground
-       bodyDef.type = b2Body.b2_staticBody;
-
-       // positions the center of the object (not upper left!)
-       bodyDef.position.x = canvas.width / 2 / SCALE;
-       bodyDef.position.y = canvas.height / SCALE;
-
-       fixDef.shape = new b2PolygonShape;
-
-       // half width, half height. eg actual height here is 1 unit
-       fixDef.shape.SetAsBox((600 / SCALE) / 2, (10/SCALE) / 2);
-       world.CreateBody(bodyDef).CreateFixture(fixDef);
-
-       //create some objects
-       bodyDef.type = b2Body.b2_dynamicBody;
-       for(var i = 0; i < 15; ++i) {
-          if(Math.random() > 0.5) {
-             fixDef.shape = new b2PolygonShape;
-             fixDef.shape.SetAsBox(
-                   Math.random() + 0.1 //half width
-                ,  Math.random() + 0.1 //half height
-             );
-          } else {
-             fixDef.shape = new b2CircleShape(
-                Math.random() + 0.1 //radius
-             );
-          }
-          bodyDef.position.x = Math.random() * 25;
-          bodyDef.position.y = Math.random() * 10;
-          world.CreateBody(bodyDef).CreateFixture(fixDef);
-       }
-
-       //setup debug draw
-       var debugDraw = new b2DebugDraw();
-       debugDraw.SetSprite(ctx);
-       debugDraw.SetDrawScale(SCALE);
-       debugDraw.SetFillAlpha(0.3);
-       debugDraw.SetLineThickness(1.0);
-       debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
-       world.SetDebugDraw(debugDraw);
-
-       setTimeout(init, 6000);
+        setTimeout(init, 6000);
     }
 
     var lastTime = performance.now(),
