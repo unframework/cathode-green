@@ -52,3 +52,42 @@ body {
         background: #f00;
     }
 }
+
+.charSprite(@w, @char, @fg, @bg) {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    ._body {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: @w;
+        height: @w;
+        border-radius: @w*0.5;
+        background: @bg;
+
+        -webkit-transform: translate3d(-@w*0.5, -@w*0.5, 0px);
+
+        &:after {
+            position: relative;
+            left: @w*0.0625;
+            top: @w*0.0625;
+            font-family: 'Press Start 2P', mono;
+            font-size: @w;
+            line-height: 1;
+            color: @fg;
+            content: @char;
+            white-space: pre;
+        }
+    }
+}
+
+.bikeWheel {
+    .charSprite(50px, '@', #afa, #284);
+}
+
+.bikeBody {
+    .charSprite(25px, '-', #284, none);
+}

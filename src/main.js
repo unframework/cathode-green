@@ -7,7 +7,7 @@ require.config({
     }
 });
 
-require([ 'stats', './Input' ], function (Stats, Input) {
+require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
     var stage = $('<div class="stage"></div>').appendTo('body'),
         wall = $('<div class="wall"></div>').appendTo(stage);
 
@@ -38,52 +38,7 @@ require([ 'stats', './Input' ], function (Stats, Input) {
 
     var world;
 
-    function createBike(world, x, y) {
-        var fixDef = new b2FixtureDef();
-        fixDef.density = 0.2;
-        fixDef.friction = 1.0;
-        fixDef.restitution = 0.1;
-        fixDef.shape = new b2CircleShape(0.5);
-
-        var bodyDef = new b2BodyDef();
-        bodyDef.type = b2Body.b2_dynamicBody;
-        bodyDef.position.x = x - 0.75;
-        bodyDef.position.y = y;
-
-        var w1 = world.CreateBody(bodyDef);
-        w1.CreateFixture(fixDef);
-
-        bodyDef.position.x = x + 0.75;
-        var w2 = world.CreateBody(bodyDef);
-        w2.CreateFixture(fixDef);
-
-        bodyDef.position.x = x;
-        fixDef.density = 100.0;
-        fixDef.shape = new b2CircleShape(0.2);
-        var main = world.CreateBody(bodyDef);
-        main.CreateFixture(fixDef);
-
-        var rjd = new b2RevoluteJointDef();
-        rjd.maxMotorTorque = 20.0;
-        rjd.enableMotor = true;
-
-        rjd.Initialize(w1, main, new b2Vec2(x - 0.75, y));
-        var wj1 = world.CreateJoint(rjd);
-
-        rjd.Initialize(w2, main, new b2Vec2(x + 0.75, y));
-        var wj2 = world.CreateJoint(rjd);
-
-        $(input).on('key:BRAKE key:FORWARD key:BACKWARD', function (e, value) {
-            var dir = (input.status.FORWARD ? 1 : 0) + (input.status.BACKWARD ? -1 : 0)
-                torque = (input.status.FORWARD || input.status.BACKWARD) ? 80.0 : (input.status.BRAKE ? 40.0 : 0);
-
-            wj1.SetMotorSpeed(dir * 5.0 * -Math.PI);
-            wj2.SetMotorSpeed(dir * 5.0 * -Math.PI);
-
-            wj1.SetMaxMotorTorque(torque);
-            wj2.SetMaxMotorTorque(torque);
-        });
-    }
+    var timer = {};
 
     function createTerrain(world) {
         var fixDef = new b2FixtureDef;
@@ -119,7 +74,7 @@ require([ 'stats', './Input' ], function (Stats, Input) {
         world.SetDebugDraw(debugDraw);
 
         createTerrain(world);
-        createBike(world, 2, 8);
+        createBikeRenderer(new Bike(input, timer, world, 2, 8));
     }
 
     var lastTime = performance.now(),
@@ -141,8 +96,9 @@ require([ 'stats', './Input' ], function (Stats, Input) {
         physicsStepAccumulator = Math.max(0, physicsStepAccumulator - physicsStepDuration);
 
         world.Step(physicsStepDuration, 10, 10);
+        $(timer).trigger('elapsed', [ physicsStepDuration ]);
 
-        world.DrawDebugData();
+        //world.DrawDebugData();
         stats.update();
 
         requestAnimFrame(update);
@@ -150,4 +106,16 @@ require([ 'stats', './Input' ], function (Stats, Input) {
 
     init();
     requestAnimFrame(update);
+
+    function createBikeRenderer(bike) {
+        var w1 = $('<div class="bikeWheel"><div class="_body"></div></div>').appendTo(stage),
+            w2 = $('<div class="bikeWheel"><div class="_body"></div></div>').appendTo(stage),
+            body = $('<div class="bikeBody"><div class="_body"></div></div>').appendTo(stage);
+
+        $(bike).on('moved', function () {
+            w1.css('transform', 'translate3d(' + bike.w1x * 50 + 'px,' + bike.w1y * 50 + 'px,0) rotate(' + bike.w1a + 'rad)');
+            w2.css('transform', 'translate3d(' + bike.w2x * 50 + 'px,' + bike.w2y * 50 + 'px,0) rotate(' + bike.w2a + 'rad)');
+            body.css('transform', 'translate3d(' + bike.bx * 50 + 'px,' + bike.by * 50 + 'px,0) rotate(' + bike.ba + 'rad)');
+        });
+    }
 });
