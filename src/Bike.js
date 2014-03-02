@@ -24,14 +24,15 @@ define([], function () {
         w2.CreateFixture(fixDef);
 
         bodyDef.position.x = x;
-        fixDef.density = 1000.0;
+        fixDef.density = 800.0;
         fixDef.shape = new b2CircleShape(0.2);
         var main = world.CreateBody(bodyDef);
         main.CreateFixture(fixDef);
         main.SetAngularDamping(1.8);
 
         var rjd = new b2RevoluteJointDef();
-        rjd.enableMotor = false;
+        rjd.maxMotorTorque = 40.0;
+        rjd.enableMotor = true;
 
         rjd.Initialize(w1, main, new b2Vec2(x - 0.75, y));
         var wj1 = world.CreateJoint(rjd);
@@ -42,7 +43,7 @@ define([], function () {
         // increase rotational inertia to avoid spin from wheel torque
         var md = new b2MassData();
         main.GetMassData(md);
-        md.I *= 10;
+        md.I *= 25;
         main.SetMassData(md);
 
         $(timer).on('elapsed', function () {
@@ -70,11 +71,8 @@ define([], function () {
 
             wj1.SetMotorSpeed(speed);
             wj2.SetMotorSpeed(speed);
-            wj1.SetMaxMotorTorque(input.status.BRAKE ? 800.0 : 800.0);
-            wj2.SetMaxMotorTorque(input.status.BRAKE ? 800.0 : 800.0);
-
-            wj1.EnableMotor(speed !== 0 || input.status.BRAKE);
-            wj2.EnableMotor(speed !== 0 || input.status.BRAKE);
+            wj1.SetMaxMotorTorque(speed !== 0 || input.status.BRAKE ? 800.0 : 40.0);
+            wj2.SetMaxMotorTorque(speed !== 0 || input.status.BRAKE ? 800.0 : 40.0);
         });
     }
 

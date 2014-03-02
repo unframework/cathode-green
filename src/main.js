@@ -43,10 +43,12 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
     var timer = {};
 
     function createTerrain(world, blockList) {
+        var baseX = 20, baseY = 30;
+
         var bodyDef = new b2BodyDef();
         bodyDef.type = b2Body.b2_staticBody;
-        bodyDef.position.x = 20;
-        bodyDef.position.y = 30;
+        bodyDef.position.x = baseX;
+        bodyDef.position.y = baseY;
 
         var body = world.CreateBody(bodyDef);
 
@@ -62,6 +64,11 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
         blockList.forEach(function (b) {
             fixDef.shape.SetAsOrientedBox(b[0], b[1], new b2Vec2(b[2], b[3]), b[4]);
             body.CreateFixture(fixDef);
+
+            var box = $('<div class="terrainBlock"><div class="_body"></div></div>').appendTo(stage);
+            box.css('width', b[0] * 2 * M_TO_PX + 'px');
+            box.css('height', b[1] * 2 * M_TO_PX + 'px');
+            box.css('transform', 'translate3d(' + (b[2] + baseX) * M_TO_PX + 'px,' + (b[3] + baseY) * M_TO_PX + 'px,0) rotate(' + b[4] + 'rad)');
         });
     }
 
