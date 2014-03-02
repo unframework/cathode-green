@@ -88,17 +88,32 @@ require([ 'stats' ], function (Stats) {
        setTimeout(init, 6000);
     }
 
-    function update() {
-       world.Step(
-             1 / 60   //frame-rate
-          ,  10       //velocity iterations
-          ,  10       //position iterations
-       );
-       world.DrawDebugData();
-       world.ClearForces();
+    var lastTime = performance.now(),
+        physicsStepAccumulator = 0,
+        physicsStepDuration = 1 / 60.0;
 
-       stats.update();
-       requestAnimFrame(update);
+    function update() {
+        var time = performance.now(),
+            elapsed = time - lastTime;
+
+        lastTime = time;
+
+        physicsStepAccumulator = Math.min(physicsStepDuration, physicsStepAccumulator + elapsed);
+
+        if (physicsStepAccumulator < physicsStepDuration) {
+            return;
+        }
+
+        physicsStepAccumulator = Math.max(0, physicsStepAccumulator - physicsStepDuration);
+
+        world.Step(physicsStepDuration, 10, 10);
+
+        world.ClearForces();
+
+        world.DrawDebugData();
+        stats.update();
+
+        requestAnimFrame(update);
     }
 
     init();
