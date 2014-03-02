@@ -8,10 +8,18 @@ require.config({
 });
 
 require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
-    var stage = $('<div class="stage"></div>').appendTo('body'),
+    var stageWindow = $('<div class="stageWindow"></div>').appendTo('body'),
+        stage = $('<div class="stage"></div>').appendTo(stageWindow),
         wall = $('<div class="wall"></div>').appendTo(stage);
 
     var M_TO_PX = 16;
+
+    var RADIUS = 300 / M_TO_PX,
+        FULL_ARC_LENGTH = RADIUS * Math.PI;
+
+    function positionOnStage(e, x, y, a) {
+        e.css('transform', 'rotateY(' + (4 *x / FULL_ARC_LENGTH) + 'rad) translate3d(0,' + y * M_TO_PX + 'px,' + RADIUS * M_TO_PX + 'px) rotate(' + a + 'rad)');
+    }
 
     window.requestAnimFrame = (function () {
         return window.requestAnimationFrame    ||
@@ -35,7 +43,7 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
 
     var canvas = document.getElementById("box2dDebugDraw");
     var ctx = canvas.getContext("2d");
-    ctx.translate(0, canvas.height);
+    ctx.translate(canvas.width / 2, canvas.height);
     ctx.scale(1, -1);
 
     var world;
@@ -43,7 +51,7 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
     var timer = {};
 
     function createTerrain(world, blockList) {
-        var baseX = 20, baseY = 30;
+        var baseX = 0, baseY = 30;
 
         var bodyDef = new b2BodyDef();
         bodyDef.type = b2Body.b2_staticBody;
@@ -57,7 +65,7 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
         fixDef.friction = 1.0;
         fixDef.restitution = 0.2;
         fixDef.shape = new b2PolygonShape();
-        fixDef.shape.SetAsBox(20, 0.1);
+        fixDef.shape.SetAsBox(200, 0.1);
 
         body.CreateFixture(fixDef);
 
@@ -68,7 +76,8 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
             var box = $('<div class="terrainBlock"><div class="_body"></div></div>').appendTo(stage);
             box.css('width', b[0] * 2 * M_TO_PX + 'px');
             box.css('height', b[1] * 2 * M_TO_PX + 'px');
-            box.css('transform', 'translate3d(' + (b[2] + baseX) * M_TO_PX + 'px,' + (b[3] + baseY) * M_TO_PX + 'px,0) rotate(' + b[4] + 'rad)');
+
+            positionOnStage(box, (b[2] + baseX), (b[3] + baseY), b[4]);
         });
     }
 
@@ -127,9 +136,9 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
             body = $('<div class="bikeBody"><div class="_body"></div></div>').appendTo(stage);
 
         $(bike).on('moved', function () {
-            w1.css('transform', 'translate3d(' + bike.w1x * M_TO_PX + 'px,' + bike.w1y * M_TO_PX + 'px,0) rotate(' + bike.w1a + 'rad)');
-            w2.css('transform', 'translate3d(' + bike.w2x * M_TO_PX + 'px,' + bike.w2y * M_TO_PX + 'px,0) rotate(' + bike.w2a + 'rad)');
-            body.css('transform', 'translate3d(' + bike.bx * M_TO_PX + 'px,' + bike.by * M_TO_PX + 'px,0) rotate(' + bike.ba + 'rad)');
+            positionOnStage(w1, bike.w1x, bike.w1y, bike.w1a);
+            positionOnStage(w2, bike.w2x, bike.w2y, bike.w2a);
+            positionOnStage(body, bike.bx, bike.by, bike.ba);
         });
     }
 });

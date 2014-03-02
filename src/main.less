@@ -9,21 +9,65 @@ body {
     left: 10px;
 }
 
-.stage {
+.stageWindow {
     position: absolute;
     top: 10px;
     left: 10px;
 
+    border: 1px solid #000;
+
     width: 640px;
     height: 480px;
 
-    border: 1px solid #000;
-    //background: #204;
+    background: #fee;
 
     -webkit-transform: translate3d(0, 0, 0);
-    -webkit-perspective: 600;
+    -webkit-perspective: 1200;
 
     overflow: hidden;
+}
+
+.stage {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    transition: -webkit-transform 5.5s;
+
+    -webkit-transform: rotateX(-0.2rad) translate3d(320px, 0, -400px) scale(0.8);
+    //-webkit-transform-origin: 320px 480px;
+    -webkit-transform-style: preserve-3d;
+
+    &:before {
+        position: absolute;
+        display: inline-block;
+        content: '';
+
+        width: 320px;
+        height: 320px;
+
+        background: #eee;
+        border-radius: 160px;
+        -webkit-transform-origin: 0 0;
+        -webkit-transform: rotateY(90deg) translate3d(-160px,-160px,0);
+    }
+
+    &:after {
+        display: inline-block;
+        content: '';
+
+        width: 320px;
+        height: 320px;
+
+        background: #ddd;
+        border-radius: 160px;
+        -webkit-transform-origin: 0 0;
+        -webkit-transform: rotateX(90deg) translate3d(-160px,-160px,0);
+    }
+}
+
+.stageWindow:hover .stage {
+    -webkit-transform: rotateX(1.2rad) translate3d(320px, 0, -400px) scale(0.8);
 }
 
 .wall {
