@@ -11,6 +11,8 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
     var stage = $('<div class="stage"></div>').appendTo('body'),
         wall = $('<div class="wall"></div>').appendTo(stage);
 
+    var M_TO_PX = 16;
+
     window.requestAnimFrame = (function () {
         return window.requestAnimationFrame    ||
             window.webkitRequestAnimationFrame ||
@@ -40,26 +42,27 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
 
     var timer = {};
 
-    function createTerrain(world) {
-        var fixDef = new b2FixtureDef;
+    function createTerrain(world, blockList) {
+        var bodyDef = new b2BodyDef();
+        bodyDef.type = b2Body.b2_staticBody;
+        bodyDef.position.x = 20;
+        bodyDef.position.y = 30;
+
+        var body = world.CreateBody(bodyDef);
+
+        var fixDef = new b2FixtureDef();
         fixDef.density = 1.0;
         fixDef.friction = 1.0;
         fixDef.restitution = 0.2;
+        fixDef.shape = new b2PolygonShape();
+        fixDef.shape.SetAsBox(20, 0.1);
 
-        var bodyDef = new b2BodyDef;
+        body.CreateFixture(fixDef);
 
-        //create ground
-        bodyDef.type = b2Body.b2_staticBody;
-
-        // positions the center of the object (not upper left!)
-        bodyDef.position.x = 6;
-        bodyDef.position.y = 10;
-
-        fixDef.shape = new b2PolygonShape;
-
-        // half width, half height. eg actual height here is 1 unit
-        fixDef.shape.SetAsBox(6, 0.1);
-        world.CreateBody(bodyDef).CreateFixture(fixDef);
+        blockList.forEach(function (b) {
+            fixDef.shape.SetAsOrientedBox(b[0], b[1], new b2Vec2(b[2], b[3]), b[4]);
+            body.CreateFixture(fixDef);
+        });
     }
 
     function init() {
@@ -67,14 +70,18 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
 
         var debugDraw = new b2DebugDraw();
         debugDraw.SetSprite(ctx);
-        debugDraw.SetDrawScale(50);
+        debugDraw.SetDrawScale(M_TO_PX);
         debugDraw.SetFillAlpha(0.3);
         debugDraw.SetLineThickness(1.0);
         debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
         world.SetDebugDraw(debugDraw);
 
-        createTerrain(world);
-        createBikeRenderer(new Bike(input, timer, world, 2, 8));
+        createTerrain(world, [
+            [ 2, 0.25, 5, -4.0, -1.0 ],
+            [ 2, 0.25, 5.5, -7.0, -1.9 ],
+            [ 4, 0.25, 1, -1.50, -0.4 ]
+        ]);
+        createBikeRenderer(new Bike(input, timer, world, 2, 25));
     }
 
     var lastTime = performance.now(),
@@ -98,7 +105,7 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
         world.Step(physicsStepDuration, 10, 10);
         $(timer).trigger('elapsed', [ physicsStepDuration ]);
 
-        //world.DrawDebugData();
+        world.DrawDebugData();
         stats.update();
 
         requestAnimFrame(update);
@@ -113,9 +120,9 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
             body = $('<div class="bikeBody"><div class="_body"></div></div>').appendTo(stage);
 
         $(bike).on('moved', function () {
-            w1.css('transform', 'translate3d(' + bike.w1x * 50 + 'px,' + bike.w1y * 50 + 'px,0) rotate(' + bike.w1a + 'rad)');
-            w2.css('transform', 'translate3d(' + bike.w2x * 50 + 'px,' + bike.w2y * 50 + 'px,0) rotate(' + bike.w2a + 'rad)');
-            body.css('transform', 'translate3d(' + bike.bx * 50 + 'px,' + bike.by * 50 + 'px,0) rotate(' + bike.ba + 'rad)');
+            w1.css('transform', 'translate3d(' + bike.w1x * M_TO_PX + 'px,' + bike.w1y * M_TO_PX + 'px,0) rotate(' + bike.w1a + 'rad)');
+            w2.css('transform', 'translate3d(' + bike.w2x * M_TO_PX + 'px,' + bike.w2y * M_TO_PX + 'px,0) rotate(' + bike.w2a + 'rad)');
+            body.css('transform', 'translate3d(' + bike.bx * M_TO_PX + 'px,' + bike.by * M_TO_PX + 'px,0) rotate(' + bike.ba + 'rad)');
         });
     }
 });
