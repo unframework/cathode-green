@@ -26,6 +26,7 @@ require([ 'stats', './Input' ], function (Stats, Input) {
     document.body.appendChild(stats.domElement);
 
     var input = new Input({
+        32: 'BRAKE',
         38: 'FORWARD',
         40: 'BACKWARD'
     });
@@ -40,7 +41,7 @@ require([ 'stats', './Input' ], function (Stats, Input) {
     function createBike(world, x, y) {
         var fixDef = new b2FixtureDef();
         fixDef.density = 0.2;
-        fixDef.friction = 0.5;
+        fixDef.friction = 1.0;
         fixDef.restitution = 0.1;
         fixDef.shape = new b2CircleShape(0.5);
 
@@ -64,7 +65,7 @@ require([ 'stats', './Input' ], function (Stats, Input) {
 
         var rjd = new b2RevoluteJointDef();
         rjd.maxMotorTorque = 20.0;
-        rjd.enableMotor = false;
+        rjd.enableMotor = true;
 
         rjd.Initialize(w1, main, new b2Vec2(x - 0.75, y));
         var wj1 = world.CreateJoint(rjd);
@@ -72,20 +73,22 @@ require([ 'stats', './Input' ], function (Stats, Input) {
         rjd.Initialize(w2, main, new b2Vec2(x + 0.75, y));
         var wj2 = world.CreateJoint(rjd);
 
-        $(input).on('key:FORWARD key:BACKWARD', function (e, value) {
-            var dir = (input.status.FORWARD ? 1 : 0) + (input.status.BACKWARD ? -1 : 0);
+        $(input).on('key:BRAKE key:FORWARD key:BACKWARD', function (e, value) {
+            var dir = (input.status.FORWARD ? 1 : 0) + (input.status.BACKWARD ? -1 : 0)
+                torque = (input.status.FORWARD || input.status.BACKWARD) ? 80.0 : (input.status.BRAKE ? 40.0 : 0);
 
-            wj1.SetMotorSpeed(dir * 10.0 * -Math.PI);
-            wj1.EnableMotor(input.status.FORWARD || input.status.BACKWARD);
-            wj2.SetMotorSpeed(dir * 10.0 * -Math.PI);
-            wj2.EnableMotor(input.status.FORWARD || input.status.BACKWARD);
+            wj1.SetMotorSpeed(dir * 5.0 * -Math.PI);
+            wj2.SetMotorSpeed(dir * 5.0 * -Math.PI);
+
+            wj1.SetMaxMotorTorque(torque);
+            wj2.SetMaxMotorTorque(torque);
         });
     }
 
     function createTerrain(world) {
         var fixDef = new b2FixtureDef;
         fixDef.density = 1.0;
-        fixDef.friction = 0.8;
+        fixDef.friction = 1.0;
         fixDef.restitution = 0.2;
 
         var bodyDef = new b2BodyDef;
