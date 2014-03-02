@@ -7,7 +7,7 @@ require.config({
     }
 });
 
-require([ 'stats' ], function (Stats) {
+require([ 'stats', './Input' ], function (Stats, Input) {
     var stage = $('<div class="stage"></div>').appendTo('body'),
         wall = $('<div class="wall"></div>').appendTo(stage);
 
@@ -24,6 +24,11 @@ require([ 'stats' ], function (Stats) {
 
     var stats = new Stats();
     document.body.appendChild(stats.domElement);
+
+    var input = new Input({
+        38: 'FORWARD',
+        40: 'BACKWARD'
+    });
 
     var canvas = document.getElementById("box2dDebugDraw");
     var ctx = canvas.getContext("2d");
@@ -58,15 +63,23 @@ require([ 'stats' ], function (Stats) {
         main.CreateFixture(fixDef);
 
         var rjd = new b2RevoluteJointDef();
-        rjd.motorSpeed = 10.0 * -Math.PI;
         rjd.maxMotorTorque = 20.0;
         rjd.enableMotor = false;
 
         rjd.Initialize(w1, main, new b2Vec2(x - 0.75, y));
-        world.CreateJoint(rjd);
+        var wj1 = world.CreateJoint(rjd);
 
         rjd.Initialize(w2, main, new b2Vec2(x + 0.75, y));
-        world.CreateJoint(rjd);
+        var wj2 = world.CreateJoint(rjd);
+
+        $(input).on('key:FORWARD key:BACKWARD', function (e, value) {
+            var dir = (input.status.FORWARD ? 1 : 0) + (input.status.BACKWARD ? -1 : 0);
+
+            wj1.SetMotorSpeed(dir * 10.0 * -Math.PI);
+            wj1.EnableMotor(input.status.FORWARD || input.status.BACKWARD);
+            wj2.SetMotorSpeed(dir * 10.0 * -Math.PI);
+            wj2.EnableMotor(input.status.FORWARD || input.status.BACKWARD);
+        });
     }
 
     function createTerrain(world) {
