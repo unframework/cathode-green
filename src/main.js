@@ -34,9 +34,9 @@ require([ 'stats' ], function (Stats) {
 
     function createBike(world, x, y) {
         var fixDef = new b2FixtureDef();
-        fixDef.density = 1.0;
+        fixDef.density = 0.2;
         fixDef.friction = 0.5;
-        fixDef.restitution = 0.2;
+        fixDef.restitution = 0.1;
         fixDef.shape = new b2CircleShape(0.5);
 
         var bodyDef = new b2BodyDef();
@@ -52,11 +52,16 @@ require([ 'stats' ], function (Stats) {
         w2.CreateFixture(fixDef);
 
         bodyDef.position.x = x;
-        fixDef.shape = new b2CircleShape(0.1);
+        fixDef.density = 100.0;
+        fixDef.shape = new b2CircleShape(0.2);
         var main = world.CreateBody(bodyDef);
         main.CreateFixture(fixDef);
 
         var rjd = new b2RevoluteJointDef();
+        rjd.motorSpeed = 10.0 * -Math.PI;
+        rjd.maxMotorTorque = 20.0;
+        rjd.enableMotor = false;
+
         rjd.Initialize(w1, main, new b2Vec2(x - 0.75, y));
         world.CreateJoint(rjd);
 
@@ -67,7 +72,7 @@ require([ 'stats' ], function (Stats) {
     function createTerrain(world) {
         var fixDef = new b2FixtureDef;
         fixDef.density = 1.0;
-        fixDef.friction = 0.5;
+        fixDef.friction = 0.8;
         fixDef.restitution = 0.2;
 
         var bodyDef = new b2BodyDef;
@@ -94,13 +99,11 @@ require([ 'stats' ], function (Stats) {
         debugDraw.SetDrawScale(50);
         debugDraw.SetFillAlpha(0.3);
         debugDraw.SetLineThickness(1.0);
-        debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+        debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
         world.SetDebugDraw(debugDraw);
 
         createTerrain(world);
-        createBike(world, 2, 5);
-
-        setTimeout(init, 6000);
+        createBike(world, 2, 8);
     }
 
     var lastTime = performance.now(),
@@ -122,8 +125,6 @@ require([ 'stats' ], function (Stats) {
         physicsStepAccumulator = Math.max(0, physicsStepAccumulator - physicsStepDuration);
 
         world.Step(physicsStepDuration, 10, 10);
-
-        world.ClearForces();
 
         world.DrawDebugData();
         stats.update();
