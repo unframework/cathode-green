@@ -43,15 +43,14 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
 
     var canvas = document.getElementById("box2dDebugDraw");
     var ctx = canvas.getContext("2d");
-    ctx.translate(canvas.width / 2, canvas.height);
-    ctx.scale(1, -1);
+    ctx.translate(canvas.width / 2, 0);
 
     var world;
 
     var timer = {};
 
     function createTerrain(world, blockList) {
-        var baseX = 0, baseY = 30;
+        var baseX = 0, baseY = 0;
 
         var bodyDef = new b2BodyDef();
         bodyDef.type = b2Body.b2_staticBody;
@@ -82,7 +81,7 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
     }
 
     function init() {
-        world = new b2World(new b2Vec2(0, 10), true);
+        world = new b2World(new b2Vec2(0, -10), true);
 
         var debugDraw = new b2DebugDraw();
         debugDraw.SetSprite(ctx);
@@ -93,9 +92,9 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
         world.SetDebugDraw(debugDraw);
 
         createTerrain(world, [
-            [ 2, 0.25, 5, -4.0, -1.0 ],
-            [ 2, 0.25, 5.5, -7.0, -1.9 ],
-            [ 4, 0.25, 1, -1.50, -0.4 ]
+            [ 2, 0.25, 5, 4.0, 1.0 ],
+            [ 2, 0.25, 5.5, 7.0, 1.9 ],
+            [ 4, 0.25, 1, 1.50, 0.4 ]
         ]);
         createBikeRenderer(new Bike(input, timer, world, 2, 25));
     }

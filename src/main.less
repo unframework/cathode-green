@@ -6,7 +6,7 @@ body {
 #box2dDebugDraw {
     position: absolute;
     top: 10px;
-    left: 10px;
+    left: 10px + 640px + 10px;
 }
 
 .stageWindow {
@@ -21,8 +21,8 @@ body {
 
     background: #fee;
 
-    -webkit-transform: translate3d(0, 0, 0);
     -webkit-perspective: 1200;
+    -webkit-backface-visibility:hidden;
 
     overflow: hidden;
 }
@@ -34,7 +34,7 @@ body {
 
     transition: -webkit-transform 5.5s;
 
-    -webkit-transform: rotateX(-0.2rad) translate3d(320px, 0, -400px) scale(0.8);
+    -webkit-transform: rotateX(-0.2rad) translate3d(320px, 100px, -400px) scale3d(1.2, -1.2, 1.2);
     //-webkit-transform-origin: 320px 480px;
     -webkit-transform-style: preserve-3d;
 
@@ -43,13 +43,12 @@ body {
         display: inline-block;
         content: '';
 
-        width: 320px;
-        height: 320px;
+        width: 640px;
+        height: 640px;
 
         background: #eee;
-        border-radius: 160px;
         -webkit-transform-origin: 0 0;
-        -webkit-transform: rotateY(90deg) translate3d(-160px,-160px,0);
+        -webkit-transform: translate3d(-320px,0,-320px) rotateX(90deg);
     }
 
     &:after {
@@ -60,14 +59,13 @@ body {
         height: 320px;
 
         background: #ddd;
-        border-radius: 160px;
         -webkit-transform-origin: 0 0;
-        -webkit-transform: rotateX(90deg) translate3d(-160px,-160px,0);
+        -webkit-transform: translate3d(-160px,10px,-160px) rotateX(90deg);
     }
 }
 
 .stageWindow:hover .stage {
-    -webkit-transform: rotateX(1.2rad) translate3d(320px, 0, -400px) scale(0.8);
+    -webkit-transform: rotateX(0.2rad) translate3d(320px, 100px, -400px) scale3d(0.8, -0.8, 0.8);
 }
 
 .wall {

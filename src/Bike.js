@@ -67,7 +67,7 @@ define([], function () {
         }.bind(this));
 
         $(input).on('key:BRAKE key:FORWARD key:BACKWARD', function (e, value) {
-            var speed = input.status.BRAKE ? 0 : ((input.status.FORWARD ? 1 : 0) + (input.status.BACKWARD ? -1 : 0)) * 15.0 * -Math.PI;
+            var speed = input.status.BRAKE ? 0 : ((input.status.FORWARD ? -1 : 0) + (input.status.BACKWARD ? 1 : 0)) * 15.0 * -Math.PI;
 
             wj1.SetMotorSpeed(speed);
             wj2.SetMotorSpeed(speed);
