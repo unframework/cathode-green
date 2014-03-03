@@ -18,7 +18,7 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
         FULL_ARC_LENGTH = RADIUS * Math.PI;
 
     function positionOnStage(e, x, y, a) {
-        e.css('transform', 'rotateY(' + (4 *x / FULL_ARC_LENGTH) + 'rad) translate3d(0,' + y * M_TO_PX + 'px,' + RADIUS * M_TO_PX + 'px) rotate(' + a + 'rad)');
+        e.css('transform', 'translate3d(' + x * M_TO_PX + 'px,' + y * M_TO_PX + 'px,' + RADIUS * M_TO_PX + 'px) rotate(' + a + 'rad)');
     }
 
     window.requestAnimFrame = (function () {
