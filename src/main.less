@@ -31,11 +31,10 @@ body {
     position: absolute;
     top: 0;
     left: 0;
+    width: 0;
+    height: 0;
 
-    transition: -webkit-transform 5.5s;
-
-    -webkit-transform: rotateX(-0.2rad) translate3d(320px, 100px, -400px) scale3d(1.2, -1.2, 1.2);
-    //-webkit-transform-origin: 320px 480px;
+    -webkit-transform: translate3d(0, 0, 0);
     -webkit-transform-style: preserve-3d;
 
     &:before {
@@ -62,10 +61,6 @@ body {
         -webkit-transform-origin: 0 0;
         -webkit-transform: translate3d(-160px,10px,-160px) rotateX(90deg);
     }
-}
-
-.stageWindow:hover .stage {
-    -webkit-transform: rotateX(0.2rad) translate3d(320px, 100px, -400px) scale3d(0.8, -0.8, 0.8);
 }
 
 .wall {

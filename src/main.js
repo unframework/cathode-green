@@ -45,7 +45,8 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
     var ctx = canvas.getContext("2d");
     ctx.translate(canvas.width / 2, 0);
 
-    var world;
+    var world, bike;
+    var cameraX = 5, cameraY = 20;
 
     var timer = {};
 
@@ -96,7 +97,10 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
             [ 2, 0.25, 5.5, 7.0, 1.9 ],
             [ 4, 0.25, 1, 1.50, 0.4 ]
         ]);
-        createBikeRenderer(new Bike(input, timer, world, 2, 25));
+
+        bike = new Bike(input, timer, world, 2, 25);
+
+        createBikeRenderer(bike);
     }
 
     var lastTime = performance.now(),
@@ -120,8 +124,15 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
         world.Step(physicsStepDuration, 10, 10);
         $(timer).trigger('elapsed', [ physicsStepDuration ]);
 
+        // move camera
+        cameraX = cameraX + 0.1 * (bike.bx - cameraX);
+        cameraY = cameraY + 0.1 * (bike.by - cameraY);
+
         world.DrawDebugData();
         stats.update();
+
+        // render new stage position
+        stage.css('transform', 'translate3d(320px,240px,0) rotateX(-0.2rad) translate3d(' + (-cameraX * M_TO_PX) + 'px,' + cameraY * M_TO_PX + 'px, -400px) scale3d(1.2, -1.2, 1.2)');
 
         requestAnimFrame(update);
     }
