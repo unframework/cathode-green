@@ -97,11 +97,15 @@ require([ 'stats', './Input', './Map', './Bike' ], function (Stats, Input, Map, 
 
         createTerrain(world, []);
 
-        new Map(world);
+        var map = new Map(world, timer);
 
         bike = new Bike(input, timer, world, 2, 25);
 
         createBikeRenderer(bike);
+
+        map.trackerList.forEach(function (t) {
+            createPlatformRenderer(t);
+        });
     }
 
     var lastTime = performance.now(),
@@ -150,6 +154,21 @@ require([ 'stats', './Input', './Map', './Bike' ], function (Stats, Input, Map, 
             positionOnStage(w1, bike.w1x, bike.w1y, bike.w1a);
             positionOnStage(w2, bike.w2x, bike.w2y, bike.w2a);
             positionOnStage(body, bike.bx, bike.by, bike.ba);
+        });
+    }
+
+    function createPlatformRenderer(p) {
+        var body = $('<div class="platform"><div class="_body"></div></div>').appendTo(stage).css({
+            width: (p.w * M_TO_PX) + 'px',
+            height: (p.h * M_TO_PX) + 'px'
+        }).find('._body').css({
+            webkitTransform: 'translate3d(' + -(p.w * 0.5 - p.ox) * M_TO_PX + 'px,' + -(p.h * 0.5 - p.oy) * M_TO_PX + 'px,0)'
+        }).end();
+
+        positionOnStage(body, p.x, p.y, p.a);
+
+        $(bike).on('moved', function () {
+            positionOnStage(body, p.x, p.y, p.a);
         });
     }
 });

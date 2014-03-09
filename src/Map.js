@@ -1,8 +1,12 @@
 define([ 'text!./map.txt' ], function (mapSource) {
-    function Map(world) {
-        var scale = 0.5, offsetX = -5, offsetY = 0;
+    function Map(world, timer) {
+        var self = this;
+
+        var scale = 0.5, offsetX = -15, offsetY = 0;
 
         var bodyDef = new b2BodyDef();
+
+        this.trackerList = [];
 
         var fixDef = new b2FixtureDef();
         fixDef.density = 800.0;
@@ -60,7 +64,9 @@ define([ 'text!./map.txt' ], function (mapSource) {
                 }
 
                 var sizeX = (cx - sx) * dx,
-                    sizeY = (cy - sy) * dy;
+                    sizeY = (cy - sy) * dy,
+                    ox = ((pivotDir ? sx - pivotX : 0) + sizeX * 0.5) * scale,
+                    oy = -((pivotDir ? sy - pivotY : 0) + sizeY * 0.5) * scale;
 
                 bodyDef.type = pivotX !== null ? (pivotDir ? b2Body.b2_kinematicBody : b2Body.b2_dynamicBody) : b2Body.b2_staticBody;
                 bodyDef.position.x = (pivotDir ? pivotX : sx) * scale + offsetX;
@@ -69,11 +75,23 @@ define([ 'text!./map.txt' ], function (mapSource) {
                     (sizeX + 1) * 0.5 * scale,
                     (sizeY + 1) * 0.5 * scale,
                     new b2Vec2(
-                        ((pivotDir ? sx - pivotX : 0) + sizeX * 0.5) * scale,
-                        -((pivotDir ? sy - pivotY : 0) + sizeY * 0.5) * scale
+                        ox,
+                        oy
                     ),
                     0
                 );
+
+                var tracker = {
+                    x: bodyDef.position.x,
+                    y: bodyDef.position.y,
+                    a: 0,
+                    w: sizeX * scale,
+                    h: sizeY * scale,
+                    ox: ox,
+                    oy: oy
+                };
+
+                console.log(tracker)
 
                 var body = world.CreateBody(bodyDef);
                 body.CreateFixture(fixDef);
@@ -85,6 +103,19 @@ define([ 'text!./map.txt' ], function (mapSource) {
                     rjd.Initialize(body, anchorBody, new b2Vec2(pivotX * scale + offsetX, (lines.length - pivotY) * scale + offsetY));
                     world.CreateJoint(rjd);
                 }
+
+                if (pivotX !== null) {
+                    $(timer).on('elapsed', function () {
+                        var bpos = body.GetPosition();
+
+                        tracker.x = bpos.x;
+                        tracker.y = bpos.y;
+                        tracker.a = body.GetAngle();
+                        $(tracker).trigger('moved');
+                    });
+                }
+
+                self.trackerList.push(tracker);
 
                 break;
             }
