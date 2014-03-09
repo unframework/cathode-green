@@ -1,13 +1,13 @@
 define([], function () {
-    function Bike(input, timer, world, x, y) {
+    function TerrainBlock(input, timer, world, x, y) {
         this.w1x = x - 0.75;
         this.w1y = y;
         this.w2x = x + 0.75;
         this.w2y = y;
 
         var fixDef = new b2FixtureDef();
-        fixDef.density = 1.0;
-        fixDef.friction = 2.0;
+        fixDef.density = 0.2;
+        fixDef.friction = 1.0;
         fixDef.restitution = 0.1;
         fixDef.shape = new b2CircleShape(0.5);
 
@@ -24,14 +24,13 @@ define([], function () {
         w2.CreateFixture(fixDef);
 
         bodyDef.position.x = x;
-        fixDef.density = 200.0;
+        fixDef.density = 100.0;
         fixDef.shape = new b2CircleShape(0.2);
         var main = world.CreateBody(bodyDef);
         main.CreateFixture(fixDef);
-        main.SetAngularDamping(1.8);
 
         var rjd = new b2RevoluteJointDef();
-        rjd.maxMotorTorque = 40.0;
+        rjd.maxMotorTorque = 20.0;
         rjd.enableMotor = true;
 
         rjd.Initialize(w1, main, new b2Vec2(x - 0.75, y));
@@ -39,12 +38,6 @@ define([], function () {
 
         rjd.Initialize(w2, main, new b2Vec2(x + 0.75, y));
         var wj2 = world.CreateJoint(rjd);
-
-        // increase rotational inertia to avoid spin from wheel torque
-        var md = new b2MassData();
-        main.GetMassData(md);
-        md.I *= 25;
-        main.SetMassData(md);
 
         $(timer).on('elapsed', function () {
             var w1pos = w1.GetPosition(),
@@ -67,12 +60,14 @@ define([], function () {
         }.bind(this));
 
         $(input).on('key:BRAKE key:FORWARD key:BACKWARD', function (e, value) {
-            var speed = input.status.BRAKE ? 0 : ((input.status.FORWARD ? -1 : 0) + (input.status.BACKWARD ? 1 : 0)) * 15.0 * -Math.PI;
+            var dir = (input.status.FORWARD ? 1 : 0) + (input.status.BACKWARD ? -1 : 0)
+                torque = (input.status.FORWARD || input.status.BACKWARD) ? 80.0 : (input.status.BRAKE ? 40.0 : 0);
 
-            wj1.SetMotorSpeed(speed);
-            wj2.SetMotorSpeed(speed);
-            wj1.SetMaxMotorTorque(speed !== 0 || input.status.BRAKE ? 800.0 : 40.0);
-            wj2.SetMaxMotorTorque(speed !== 0 || input.status.BRAKE ? 800.0 : 40.0);
+            wj1.SetMotorSpeed(dir * 5.0 * -Math.PI);
+            wj2.SetMotorSpeed(dir * 5.0 * -Math.PI);
+
+            wj1.SetMaxMotorTorque(torque);
+            wj2.SetMaxMotorTorque(torque);
         });
     }
 

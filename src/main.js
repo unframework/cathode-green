@@ -1,5 +1,8 @@
 
 require.config({
+    paths: {
+        text: '../bower_components/requirejs-text/text'
+    },
     shim: {
         'stats': {
             exports: 'Stats'
@@ -7,7 +10,7 @@ require.config({
     }
 });
 
-require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
+require([ 'stats', './Input', './Map', './Bike' ], function (Stats, Input, Map, Bike) {
     var stageWindow = $('<div class="stageWindow"></div>').appendTo('body'),
         stage = $('<div class="stage"></div>').appendTo(stageWindow),
         wall = $('<div class="wall"></div>').appendTo(stage);
@@ -61,7 +64,7 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
         var body = world.CreateBody(bodyDef);
 
         var fixDef = new b2FixtureDef();
-        fixDef.density = 1.0;
+        fixDef.density = 800.0;
         fixDef.friction = 1.0;
         fixDef.restitution = 0.2;
         fixDef.shape = new b2PolygonShape();
@@ -92,11 +95,9 @@ require([ 'stats', './Input', './Bike' ], function (Stats, Input, Bike) {
         debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
         world.SetDebugDraw(debugDraw);
 
-        createTerrain(world, [
-            [ 2, 0.25, 5, 4.0, 1.0 ],
-            [ 2, 0.25, 5.5, 7.0, 1.9 ],
-            [ 4, 0.25, 1, 1.50, 0.4 ]
-        ]);
+        createTerrain(world, []);
+
+        new Map(world);
 
         bike = new Bike(input, timer, world, 2, 25);
 
