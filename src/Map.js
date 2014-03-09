@@ -33,6 +33,7 @@ define([ 'text!./map.txt' ], function (mapSource) {
                 cy = sy + dy,
                 pivotX = null,
                 pivotY = null,
+                pivotDir = 0,
                 c;
 
             if (cat(sx, sy) === '*') {
@@ -41,9 +42,15 @@ define([ 'text!./map.txt' ], function (mapSource) {
             }
 
             while((c = cat(cx, cy)) !== ' ') {
-                if (c === '*') {
+                if (c === '*' || c === '.' || c === 'O' || c === 'o') {
                     pivotX = cx;
                     pivotY = cy;
+                }
+
+                if (c === 'O') {
+                    pivotDir = 1;
+                } else if (c === 'o') {
+                    pivotDir = -1;
                 }
 
                 if (c !== '+' && c !== '*') {
@@ -55,15 +62,15 @@ define([ 'text!./map.txt' ], function (mapSource) {
                 var sizeX = (cx - sx) * dx,
                     sizeY = (cy - sy) * dy;
 
-                bodyDef.type = pivotX !== null ? b2Body.b2_dynamicBody : b2Body.b2_staticBody;
-                bodyDef.position.x = sx * scale + offsetX;
-                bodyDef.position.y = (lines.length - sy) * scale + offsetY;
+                bodyDef.type = pivotX !== null ? (pivotDir ? b2Body.b2_kinematicBody : b2Body.b2_dynamicBody) : b2Body.b2_staticBody;
+                bodyDef.position.x = (pivotDir ? pivotX : sx) * scale + offsetX;
+                bodyDef.position.y = (lines.length - (pivotDir ? pivotY : sy)) * scale + offsetY;
                 fixDef.shape.SetAsOrientedBox(
                     (sizeX + 1) * 0.5 * scale,
                     (sizeY + 1) * 0.5 * scale,
                     new b2Vec2(
-                        sizeX * 0.5 * scale,
-                        -sizeY * 0.5 * scale
+                        ((pivotDir ? sx - pivotX : 0) + sizeX * 0.5) * scale,
+                        -((pivotDir ? sy - pivotY : 0) + sizeY * 0.5) * scale
                     ),
                     0
                 );
@@ -71,7 +78,10 @@ define([ 'text!./map.txt' ], function (mapSource) {
                 var body = world.CreateBody(bodyDef);
                 body.CreateFixture(fixDef);
 
-                if (pivotX !== null) {
+                if (pivotDir) {
+                    body.SetAngularVelocity(pivotDir);
+                } else if (pivotX !== null) {
+                    rjd.enableMotor = false;
                     rjd.Initialize(body, anchorBody, new b2Vec2(pivotX * scale + offsetX, (lines.length - pivotY) * scale + offsetY));
                     world.CreateJoint(rjd);
                 }
