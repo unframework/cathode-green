@@ -99,7 +99,7 @@ require([ 'stats', './Input', './Map', './Bike' ], function (Stats, Input, Map, 
 
         var map = new Map(world, timer);
 
-        bike = new Bike(input, timer, world, 2, 25);
+        bike = new Bike(input, timer, world, map.startX, map.startY);
 
         createBikeRenderer(bike);
 

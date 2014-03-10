@@ -28,7 +28,12 @@ define([ 'text!./map.txt' ], function (mapSource) {
             maxLineLength = Math.max(maxLineLength, v.length);
         });
 
-        var scale = 0.5, offsetX = -maxLineLength * scale * 0.5, offsetY = 0;
+        var scale = 0.5,
+            offsetX = -maxLineLength * scale * 0.5,
+            offsetY = 0;
+
+        this.startX = 0,
+        this.startY = lines.length * scale;
 
         function cat(x, y) {
             return (lines[y] && lines[y][x]) || ' ';
@@ -125,12 +130,13 @@ define([ 'text!./map.txt' ], function (mapSource) {
 
         lines.forEach(function (line, y) {
             line.forEach(function (c, x) {
-                if (c !== '+' && c !== '*') {
-                    return;
+                if (c === '@') {
+                    self.startX = x * scale + offsetX;
+                    self.startY = (lines.length - y) * scale + offsetY;
+                } else if (c === '+' || c === '*') {
+                    walk(x, y, 1, 0);
+                    walk(x, y, 0, 1);
                 }
-
-                walk(x, y, 1, 0);
-                walk(x, y, 0, 1);
             });
         });
 
