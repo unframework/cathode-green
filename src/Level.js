@@ -19,7 +19,7 @@ define([ './Map', './Bike' ], function (Map, Bike) {
         body.CreateFixture(fixDef);
     }
 
-    function Level(input, timer) {
+    function Level(input, timer, mapSource) {
         var self = this;
 
         this.cameraX = 5;
@@ -37,7 +37,7 @@ define([ './Map', './Bike' ], function (Map, Bike) {
 
         createTerrain(world, []);
 
-        var map = new Map(world, timer);
+        var map = new Map(world, timer, mapSource);
 
         var bike = new Bike(input, timer, world, map.startX, map.startY);
 

@@ -10,7 +10,7 @@ require.config({
     }
 });
 
-require([ 'stats', './Input', './Timer', './Level' ], function (Stats, Input, Timer, Level) {
+require([ 'stats', './Input', './Timer', './Level', 'text!./map.txt' ], function (Stats, Input, Timer, Level, mapSource) {
     var stageWindow = $('<div class="stageWindow"></div>').appendTo('body'),
         stage = $('<div class="stage"></div>').appendTo(stageWindow),
         wall = $('<div class="wall"></div>').appendTo(stage);
@@ -36,7 +36,7 @@ require([ 'stats', './Input', './Timer', './Level' ], function (Stats, Input, Ti
 
     var timer = new Timer();
 
-    var level = new Level(input, timer);
+    var level = new Level(input, timer, mapSource);
 
     $(timer).on('elapsed', function (e, physicsStepDuration) {
         // world.DrawDebugData();

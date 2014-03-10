@@ -1,5 +1,5 @@
-define([ 'text!./map.txt' ], function (mapSource) {
-    function Map(world, timer) {
+define([], function () {
+    function Map(world, timer, mapSource) {
         var self = this;
 
         var bodyDef = new b2BodyDef();
