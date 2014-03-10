@@ -27,28 +27,22 @@ define([ './Map', './Bike' ], function (Map, Bike) {
 
         var world = new b2World(new b2Vec2(0, -10), true);
 
-        // var debugDraw = new b2DebugDraw();
-        // debugDraw.SetSprite(ctx);
-        // debugDraw.SetDrawScale(M_TO_PX);
-        // debugDraw.SetFillAlpha(0.3);
-        // debugDraw.SetLineThickness(1.0);
-        // debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
-        // world.SetDebugDraw(debugDraw);
+        // hook up elapsed trigger before physics-dependent objects to (@todo maybe improve to rely less on order of listeners)
+        $(timer).on('elapsed', function (e, physicsStepDuration) {
+            world.Step(physicsStepDuration, 10, 10);
+        });
 
         createTerrain(world, []);
 
         var map = new Map(world, timer, mapSource);
-
         var bike = new Bike(input, timer, world, map.startX, map.startY);
 
         $(timer).on('elapsed', function (e, physicsStepDuration) {
-            world.Step(physicsStepDuration, 10, 10);
-
             // move camera
             self.cameraX += 0.1 * (bike.bx - self.cameraX);
             self.cameraY += 0.1 * (bike.by - self.cameraY);
 
-            // world.DrawDebugData();
+            $(self).trigger('cameraMoved');
         });
 
         this.bike = bike;

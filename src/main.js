@@ -11,18 +11,14 @@ require.config({
 });
 
 require([ 'stats', './Input', './Timer', './Level', 'text!./map.txt' ], function (Stats, Input, Timer, Level, mapSource) {
-    var stageWindow = $('<div class="stageWindow"></div>').appendTo('body'),
-        stage = $('<div class="stage"></div>').appendTo(stageWindow),
-        wall = $('<div class="wall"></div>').appendTo(stage);
-
-    var M_TO_PX = 16;
-
-    function positionOnStage(e, x, y, a) {
-        e.css('transform', 'translate3d(' + x * M_TO_PX + 'px,' + y * M_TO_PX + 'px,100px) rotate(' + a + 'rad)');
-    }
+    var timer = new Timer();
 
     var stats = new Stats();
     document.body.appendChild(stats.domElement);
+
+    $(timer).on('elapsed', function (e, physicsStepDuration) {
+        stats.update();
+    });
 
     var input = new Input({
         32: 'BRAKE',
@@ -30,51 +26,57 @@ require([ 'stats', './Input', './Timer', './Level', 'text!./map.txt' ], function
         40: 'BACKWARD'
     });
 
-    var canvas = document.getElementById("box2dDebugDraw");
-    var ctx = canvas.getContext("2d");
-    ctx.translate(canvas.width / 2, 0);
-
-    var timer = new Timer();
-
     var level = new Level(input, timer, mapSource);
 
-    $(timer).on('elapsed', function (e, physicsStepDuration) {
-        // world.DrawDebugData();
-        stats.update();
+    createLevelRenderer(level);
 
-        // render new stage position
-        stage.css('transform', 'translate3d(320px,240px,0) rotateX(-0.2rad) rotateY(0.4rad)  translate3d(' + (-level.cameraX * M_TO_PX) + 'px,' + level.cameraY * M_TO_PX + 'px, -100px) scale3d(1.2, -1.2, 1.2)');
-    });
+    function createLevelRenderer(level) {
+        var stageWindow = $('<div class="stageWindow"></div>').appendTo('body'),
+            stage = $('<div class="stage"></div>').appendTo(stageWindow),
+            wall = $('<div class="wall"></div>').appendTo(stage);
 
-    createBikeRenderer(level.bike);
-    level.map.trackerList.forEach(function (t) {
-        createPlatformRenderer(t);
-    });
+        var M_TO_PX = 16;
 
-    function createBikeRenderer(bike) {
-        var w1 = $('<div class="bikeWheel"><div class="_body"></div></div>').appendTo(stage),
-            w2 = $('<div class="bikeWheel"><div class="_body"></div></div>').appendTo(stage),
-            body = $('<div class="bikeBody"><div class="_body"></div></div>').appendTo(stage);
+        function positionOnStage(e, x, y, a) {
+            e.css('transform', 'translate3d(' + x * M_TO_PX + 'px,' + y * M_TO_PX + 'px,100px) rotate(' + a + 'rad)');
+        }
 
-        $(bike).on('moved', function () {
-            positionOnStage(w1, bike.w1x, bike.w1y, bike.w1a);
-            positionOnStage(w2, bike.w2x, bike.w2y, bike.w2a);
-            positionOnStage(body, bike.bx, bike.by, bike.ba);
+        createBikeRenderer(level.bike);
+
+        level.map.trackerList.forEach(function (t) {
+            createPlatformRenderer(t);
         });
-    }
 
-    function createPlatformRenderer(p) {
-        var body = $('<div class="platform"><div class="_body"></div></div>').appendTo(stage).css({
-            width: (p.w * M_TO_PX) + 'px',
-            height: (p.h * M_TO_PX) + 'px'
-        }).find('._body').css({
-            webkitTransform: 'translate3d(' + -(p.w * 0.5 - p.ox) * M_TO_PX + 'px,' + -(p.h * 0.5 - p.oy) * M_TO_PX + 'px,0)'
-        }).end();
+        $(level).on('cameraMoved', function (e, physicsStepDuration) {
+            // render new stage position
+            stage.css('transform', 'translate3d(320px,240px,0) rotateX(-0.2rad) rotateY(0.4rad)  translate3d(' + (-level.cameraX * M_TO_PX) + 'px,' + level.cameraY * M_TO_PX + 'px, -100px) scale3d(1.2, -1.2, 1.2)');
+        });
 
-        positionOnStage(body, p.x, p.y, p.a);
+        function createBikeRenderer(bike) {
+            var w1 = $('<div class="bikeWheel"><div class="_body"></div></div>').appendTo(stage),
+                w2 = $('<div class="bikeWheel"><div class="_body"></div></div>').appendTo(stage),
+                body = $('<div class="bikeBody"><div class="_body"></div></div>').appendTo(stage);
 
-        $(p).on('moved', function () {
+            $(bike).on('moved', function () {
+                positionOnStage(w1, bike.w1x, bike.w1y, bike.w1a);
+                positionOnStage(w2, bike.w2x, bike.w2y, bike.w2a);
+                positionOnStage(body, bike.bx, bike.by, bike.ba);
+            });
+        }
+
+        function createPlatformRenderer(p) {
+            var body = $('<div class="platform"><div class="_body"></div></div>').appendTo(stage).css({
+                width: (p.w * M_TO_PX) + 'px',
+                height: (p.h * M_TO_PX) + 'px'
+            }).find('._body').css({
+                webkitTransform: 'translate3d(' + -(p.w * 0.5 - p.ox) * M_TO_PX + 'px,' + -(p.h * 0.5 - p.oy) * M_TO_PX + 'px,0)'
+            }).end();
+
             positionOnStage(body, p.x, p.y, p.a);
-        });
+
+            $(p).on('moved', function () {
+                positionOnStage(body, p.x, p.y, p.a);
+            });
+        }
     }
 });
