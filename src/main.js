@@ -10,7 +10,7 @@ require.config({
     }
 });
 
-require([ 'stats', './Input', './Timer', './Map', './Bike' ], function (Stats, Input, Timer, Map, Bike) {
+require([ 'stats', './Input', './Timer', './Level' ], function (Stats, Input, Timer, Level) {
     var stageWindow = $('<div class="stageWindow"></div>').appendTo('body'),
         stage = $('<div class="stage"></div>').appendTo(stageWindow),
         wall = $('<div class="wall"></div>').appendTo(stage);
@@ -34,81 +34,22 @@ require([ 'stats', './Input', './Timer', './Map', './Bike' ], function (Stats, I
     var ctx = canvas.getContext("2d");
     ctx.translate(canvas.width / 2, 0);
 
-    var world, bike;
-    var cameraX = 5, cameraY = 20;
-
     var timer = new Timer();
 
-    function createTerrain(world, blockList) {
-        var baseX = 0, baseY = 0;
-
-        var bodyDef = new b2BodyDef();
-        bodyDef.type = b2Body.b2_staticBody;
-        bodyDef.position.x = baseX;
-        bodyDef.position.y = baseY;
-
-        var body = world.CreateBody(bodyDef);
-
-        var fixDef = new b2FixtureDef();
-        fixDef.density = 800.0;
-        fixDef.friction = 1.0;
-        fixDef.restitution = 0.2;
-        fixDef.shape = new b2PolygonShape();
-        fixDef.shape.SetAsBox(200, 0.1);
-
-        body.CreateFixture(fixDef);
-
-        blockList.forEach(function (b) {
-            fixDef.shape.SetAsOrientedBox(b[0], b[1], new b2Vec2(b[2], b[3]), b[4]);
-            body.CreateFixture(fixDef);
-
-            var box = $('<div class="terrainBlock"><div class="_body"></div></div>').appendTo(stage);
-            box.css('width', b[0] * 2 * M_TO_PX + 'px');
-            box.css('height', b[1] * 2 * M_TO_PX + 'px');
-
-            positionOnStage(box, (b[2] + baseX), (b[3] + baseY), b[4]);
-        });
-    }
-
-    function init() {
-        world = new b2World(new b2Vec2(0, -10), true);
-
-        var debugDraw = new b2DebugDraw();
-        debugDraw.SetSprite(ctx);
-        debugDraw.SetDrawScale(M_TO_PX);
-        debugDraw.SetFillAlpha(0.3);
-        debugDraw.SetLineThickness(1.0);
-        debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
-        world.SetDebugDraw(debugDraw);
-
-        createTerrain(world, []);
-
-        var map = new Map(world, timer);
-
-        bike = new Bike(input, timer, world, map.startX, map.startY);
-
-        createBikeRenderer(bike);
-
-        map.trackerList.forEach(function (t) {
-            createPlatformRenderer(t);
-        });
-    }
+    var level = new Level(input, timer);
 
     $(timer).on('elapsed', function (e, physicsStepDuration) {
-        world.Step(physicsStepDuration, 10, 10);
-
-        // move camera
-        cameraX = cameraX + 0.1 * (bike.bx - cameraX);
-        cameraY = cameraY + 0.1 * (bike.by - cameraY);
-
         // world.DrawDebugData();
         stats.update();
 
         // render new stage position
-        stage.css('transform', 'translate3d(320px,240px,0) rotateX(-0.2rad) rotateY(0.4rad)  translate3d(' + (-cameraX * M_TO_PX) + 'px,' + cameraY * M_TO_PX + 'px, -100px) scale3d(1.2, -1.2, 1.2)');
+        stage.css('transform', 'translate3d(320px,240px,0) rotateX(-0.2rad) rotateY(0.4rad)  translate3d(' + (-level.cameraX * M_TO_PX) + 'px,' + level.cameraY * M_TO_PX + 'px, -100px) scale3d(1.2, -1.2, 1.2)');
     });
 
-    init();
+    createBikeRenderer(level.bike);
+    level.map.trackerList.forEach(function (t) {
+        createPlatformRenderer(t);
+    });
 
     function createBikeRenderer(bike) {
         var w1 = $('<div class="bikeWheel"><div class="_body"></div></div>').appendTo(stage),
@@ -132,7 +73,7 @@ require([ 'stats', './Input', './Timer', './Map', './Bike' ], function (Stats, I
 
         positionOnStage(body, p.x, p.y, p.a);
 
-        $(bike).on('moved', function () {
+        $(p).on('moved', function () {
             positionOnStage(body, p.x, p.y, p.a);
         });
     }
