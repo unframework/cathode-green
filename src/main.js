@@ -11,12 +11,12 @@ require.config({
 });
 
 require([ 'stats', './Input', './Timer', './Level', 'text!./map.txt' ], function (Stats, Input, Timer, Level, mapSource) {
-    var timer = new Timer();
+    var statsTimer = new Timer();
 
     var stats = new Stats();
     document.body.appendChild(stats.domElement);
 
-    $(timer).on('elapsed', function (e, physicsStepDuration) {
+    $(statsTimer).on('elapsed', function (e, physicsStepDuration) {
         stats.update();
     });
 
@@ -26,9 +26,21 @@ require([ 'stats', './Input', './Timer', './Level', 'text!./map.txt' ], function
         40: 'BACKWARD'
     });
 
-    var level = new Level(input, timer, mapSource);
+    function startGame() {
+        var timer = new Timer();
+        var level = new Level(input, timer, mapSource);
 
-    createLevelRenderer(level);
+        var dom = createLevelRenderer(level);
+
+        $(level).on('lost', function () {
+            dom.remove();
+            timer.destroy();
+
+            startGame();
+        });
+    }
+
+    startGame();
 
     function createLevelRenderer(level) {
         var stageWindow = $('<div class="stageWindow"></div>').appendTo('body'),
@@ -78,5 +90,7 @@ require([ 'stats', './Input', './Timer', './Level', 'text!./map.txt' ], function
                 positionOnStage(body, p.x, p.y, p.a);
             });
         }
+
+        return stageWindow;
     }
 });

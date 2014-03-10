@@ -16,7 +16,13 @@ define([], function () {
             physicsStepDuration = 1 / 60.0,
             self = this;
 
+        this.isDestroyed = false;
+
         function update() {
+            if (self.isDestroyed) {
+                return;
+            }
+
             var time = performance.now(),
                 elapsed = time - lastTime;
 
@@ -35,6 +41,10 @@ define([], function () {
         }
 
         requestAnimFrame(update);
+    }
+
+    Timer.prototype.destroy = function () {
+        this.isDestroyed = true;
     }
 
     return Timer;

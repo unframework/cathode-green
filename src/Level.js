@@ -1,22 +1,22 @@
 define([ './Map', './Bike' ], function (Map, Bike) {
     function createTerrain(world) {
-        var baseX = 0, baseY = 0;
+        // var baseX = 0, baseY = 0;
 
-        var bodyDef = new b2BodyDef();
-        bodyDef.type = b2Body.b2_staticBody;
-        bodyDef.position.x = baseX;
-        bodyDef.position.y = baseY;
+        // var bodyDef = new b2BodyDef();
+        // bodyDef.type = b2Body.b2_staticBody;
+        // bodyDef.position.x = baseX;
+        // bodyDef.position.y = baseY;
 
-        var body = world.CreateBody(bodyDef);
+        // var body = world.CreateBody(bodyDef);
 
-        var fixDef = new b2FixtureDef();
-        fixDef.density = 800.0;
-        fixDef.friction = 1.0;
-        fixDef.restitution = 0.2;
-        fixDef.shape = new b2PolygonShape();
-        fixDef.shape.SetAsBox(200, 0.1);
+        // var fixDef = new b2FixtureDef();
+        // fixDef.density = 800.0;
+        // fixDef.friction = 1.0;
+        // fixDef.restitution = 0.2;
+        // fixDef.shape = new b2PolygonShape();
+        // fixDef.shape.SetAsBox(200, 0.1);
 
-        body.CreateFixture(fixDef);
+        // body.CreateFixture(fixDef);
     }
 
     function Level(input, timer, mapSource) {
@@ -43,6 +43,11 @@ define([ './Map', './Bike' ], function (Map, Bike) {
             self.cameraY += 0.1 * (bike.by - self.cameraY);
 
             $(self).trigger('cameraMoved');
+
+            if (bike.by < 0) {
+                console.log('lost!');
+                $(self).trigger('lost');
+            }
         });
 
         this.bike = bike;
