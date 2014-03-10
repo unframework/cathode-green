@@ -133,7 +133,7 @@ require([ 'stats', './Input', './Map', './Bike' ], function (Stats, Input, Map, 
         cameraX = cameraX + 0.1 * (bike.bx - cameraX);
         cameraY = cameraY + 0.1 * (bike.by - cameraY);
 
-        world.DrawDebugData();
+        // world.DrawDebugData();
         stats.update();
 
         // render new stage position

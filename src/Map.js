@@ -2,8 +2,6 @@ define([ 'text!./map.txt' ], function (mapSource) {
     function Map(world, timer) {
         var self = this;
 
-        var scale = 0.5, offsetX = -15, offsetY = 0;
-
         var bodyDef = new b2BodyDef();
 
         this.trackerList = [];
@@ -22,11 +20,15 @@ define([ 'text!./map.txt' ], function (mapSource) {
         bodyDef.position.y = 0;
         var anchorBody = world.CreateBody(bodyDef);
 
-        var lines = [];
+        var lines = [],
+            maxLineLength = 0;
 
         mapSource.split("\n").forEach(function (v) {
             lines.push(v.split(''));
+            maxLineLength = Math.max(maxLineLength, v.length);
         });
+
+        var scale = 0.5, offsetX = -maxLineLength * scale * 0.5, offsetY = 0;
 
         function cat(x, y) {
             return (lines[y] && lines[y][x]) || ' ';
