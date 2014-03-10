@@ -10,30 +10,16 @@ require.config({
     }
 });
 
-require([ 'stats', './Input', './Map', './Bike' ], function (Stats, Input, Map, Bike) {
+require([ 'stats', './Input', './Timer', './Map', './Bike' ], function (Stats, Input, Timer, Map, Bike) {
     var stageWindow = $('<div class="stageWindow"></div>').appendTo('body'),
         stage = $('<div class="stage"></div>').appendTo(stageWindow),
         wall = $('<div class="wall"></div>').appendTo(stage);
 
     var M_TO_PX = 16;
 
-    var RADIUS = 300 / M_TO_PX,
-        FULL_ARC_LENGTH = RADIUS * Math.PI;
-
     function positionOnStage(e, x, y, a) {
-        e.css('transform', 'translate3d(' + x * M_TO_PX + 'px,' + y * M_TO_PX + 'px,' + RADIUS * M_TO_PX + 'px) rotate(' + a + 'rad)');
+        e.css('transform', 'translate3d(' + x * M_TO_PX + 'px,' + y * M_TO_PX + 'px,100px) rotate(' + a + 'rad)');
     }
-
-    window.requestAnimFrame = (function () {
-        return window.requestAnimationFrame    ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame    ||
-            window.oRequestAnimationFrame      ||
-            window.msRequestAnimationFrame     ||
-            function (callback) {
-                window.setTimeout(callback, 1000 / 60);
-            };
-    }());
 
     var stats = new Stats();
     document.body.appendChild(stats.domElement);
@@ -51,7 +37,7 @@ require([ 'stats', './Input', './Map', './Bike' ], function (Stats, Input, Map, 
     var world, bike;
     var cameraX = 5, cameraY = 20;
 
-    var timer = {};
+    var timer = new Timer();
 
     function createTerrain(world, blockList) {
         var baseX = 0, baseY = 0;
@@ -108,26 +94,8 @@ require([ 'stats', './Input', './Map', './Bike' ], function (Stats, Input, Map, 
         });
     }
 
-    var lastTime = performance.now(),
-        physicsStepAccumulator = 0,
-        physicsStepDuration = 1 / 60.0;
-
-    function update() {
-        var time = performance.now(),
-            elapsed = time - lastTime;
-
-        lastTime = time;
-
-        physicsStepAccumulator = Math.min(physicsStepDuration, physicsStepAccumulator + elapsed);
-
-        if (physicsStepAccumulator < physicsStepDuration) {
-            return;
-        }
-
-        physicsStepAccumulator = Math.max(0, physicsStepAccumulator - physicsStepDuration);
-
+    $(timer).on('elapsed', function (e, physicsStepDuration) {
         world.Step(physicsStepDuration, 10, 10);
-        $(timer).trigger('elapsed', [ physicsStepDuration ]);
 
         // move camera
         cameraX = cameraX + 0.1 * (bike.bx - cameraX);
@@ -137,13 +105,10 @@ require([ 'stats', './Input', './Map', './Bike' ], function (Stats, Input, Map, 
         stats.update();
 
         // render new stage position
-        stage.css('transform', 'translate3d(320px,240px,0) rotateX(-0.2rad) translate3d(' + (-cameraX * M_TO_PX) + 'px,' + cameraY * M_TO_PX + 'px, -400px) scale3d(1.2, -1.2, 1.2)');
-
-        requestAnimFrame(update);
-    }
+        stage.css('transform', 'translate3d(320px,240px,0) rotateX(-0.2rad) rotateY(0.4rad)  translate3d(' + (-cameraX * M_TO_PX) + 'px,' + cameraY * M_TO_PX + 'px, -100px) scale3d(1.2, -1.2, 1.2)');
+    });
 
     init();
-    requestAnimFrame(update);
 
     function createBikeRenderer(bike) {
         var w1 = $('<div class="bikeWheel"><div class="_body"></div></div>').appendTo(stage),

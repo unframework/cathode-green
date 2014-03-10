@@ -4,6 +4,8 @@ define([], function () {
         this.w1y = y;
         this.w2x = x + 0.75;
         this.w2y = y;
+        this.bx = x;
+        this.by = y;
 
         var fixDef = new b2FixtureDef();
         fixDef.density = 1.0;
