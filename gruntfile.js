@@ -41,6 +41,11 @@ module.exports = function (grunt) {
                 files: {
                     '.tmp/src/main.css': 'src/main.less'
                 }
+            },
+            dist: {
+                files: {
+                    'src/main.css': 'src/main.less'
+                }
             }
         }
     });
@@ -53,5 +58,9 @@ module.exports = function (grunt) {
         'less:development',
         'connect:livereload',
         'watch'
+    ]);
+
+    grunt.registerTask('dist', [
+        'less:dist'
     ]);
 };
